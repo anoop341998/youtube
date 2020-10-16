@@ -3,6 +3,8 @@ import Dropzone from 'react-dropzone';
 import M from "materialize-css";
 import axios from 'axios';
 import { useSelector } from 'react-redux';
+import { getMetadata, Video} from 'video-metadata-thumbnails';
+import VideoSnapshot from 'video-snapshot';
 
 
 export default function UploadVideoPage(props){
@@ -15,6 +17,7 @@ export default function UploadVideoPage(props){
     const [filePath, setFilePath] = useState("");
     const [duration, setDuration] = useState(""); 
     const [thumbnail, setThumbnail] = useState("");
+    const [imgSrc, setImgSrc] = useState("https://miro.medium.com/max/1316/1*URHYGBQMuu9UWc4zEVFGPw.gif");
 
 
     const Private = [
@@ -91,29 +94,29 @@ export default function UploadVideoPage(props){
                 }
             })
     }
-    const onDrop = (files) => {
+    const onDrop = async(files) => {
         let formData = new FormData();
-        // console.log(files);
+        const snapshoter = new VideoSnapshot(files[0]);
+        const previewSrc = await snapshoter.takeSnapshot();
         const config = {
             header: {'content-type': 'multipart/form-data'}
         }
         formData.append("file", files[0]);
+        const video = new Video(files[0]);
+        const metadata =  await video.getMetadata();
+        setDuration(metadata.duration);
+
         axios.post('/api/video/uploadfiles', formData, config)
             .then(response => {
                 if(response.data.success){
                     let tmp = {
-                        filePath: response.data.filePath,
-                        fileName: response.data.fileName,
+                        previewSrc: previewSrc,
                     }
                     setFilePath(response.data.filePath); 
-
-                    // generate thumbnail
-
                     axios.post('/api/video/thumbnail', tmp)
                         .then(response => {
                             if(response.data.success){
                                 setThumbnail(response.data.thumbsFilePath);
-                                setDuration(response.data.fileDuration);
                             }
                             else{
                                 alert('Failed to make thumbnail')
@@ -150,26 +153,29 @@ export default function UploadVideoPage(props){
                                 />
                                 <label htmlFor="title" className="active">Title</label>
                             </div>
-                        </div>
+                        </div> 
                         <div className="row">
-                            <Dropzone onDrop={onDrop}>
+                        {
+                            thumbnail === "" && 
+                              <Dropzone onDrop={onDrop}>
                                 {({getRootProps, getInputProps}) => (
                                     <section>
                                     <div {...getRootProps()}>
                                         <input {...getInputProps()} />
                                         <img 
-                                            src='https://miro.medium.com/max/1316/1*URHYGBQMuu9UWc4zEVFGPw.gif'
+                                            src={imgSrc}
                                             height='150px'
                                             width='300px'/>
                                     </div>
                                     </section>
                                 )}
                             </Dropzone>
+                        }                           
                             {thumbnail !== "" && 
                                 <div>
                                     <img src={`/${thumbnail}`} alt="thumb"/>
                                 </div>
-                            }
+                            }                     
                         </div>
                         <div className="row">
                             <div className="input-field col s12">

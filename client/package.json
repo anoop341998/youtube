@@ -21,6 +21,8 @@
     "redux": "^4.0.5",
     "redux-promise": "^0.6.0",
     "redux-thunk": "^2.3.0",
+    "video-metadata-thumbnails": "^1.0.18",
+    "video-snapshot": "^1.0.3",
     "webpack-node-externals": "^2.5.2",
     "yup": "^0.29.3"
   },

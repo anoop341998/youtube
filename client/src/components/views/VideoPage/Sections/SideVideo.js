@@ -28,12 +28,11 @@ function SideVideo(){
                     <div style={{width: "40%", marginRight: "1rem"}}>
                         <a href={"/video/" + video._id}>
                             <img style={{width: '100%', height:"100%"}} 
-                                src={`${video.thumbnail}`}
+                                src={`/${video.thumbnail}`}
                                 alt="thumbnail"
                             />
                         </a>
                     </div>
-                    {console.log(`/${video.thumbnail}`)}
                     <div style={{width: "50%"}}> 
                         <a href={"/video/" + video._id}>
                             <div>
